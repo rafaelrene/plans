@@ -1,5 +1,5 @@
 import { get, list } from '@vercel/blob';
-import { BLOB_STORE_ID, VERCEL_OIDC_TOKEN } from '$app/env/private';
+import { BLOB_STORE_ID } from '$app/env/private';
 import type { PlanSummary } from '#lib/plan';
 import { isPlanId, MAX_PLAN_BYTES, planFromPathname } from './plan';
 
@@ -45,13 +45,11 @@ const defaultDependencies: PlanStoreDependencies = {
 	listBlobs: (options) =>
 		list({
 			...options,
-			oidcToken: VERCEL_OIDC_TOKEN,
 			storeId: BLOB_STORE_ID
 		}),
 	readBlob: async (pathname) => {
 		const result = await get(pathname, {
 			access: 'private',
-			oidcToken: VERCEL_OIDC_TOKEN,
 			storeId: BLOB_STORE_ID
 		});
 		if (!result) {

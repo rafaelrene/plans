@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { put } from '@vercel/blob';
-import { BLOB_STORE_ID, PLANS_OWNER_SECRET, VERCEL_OIDC_TOKEN } from '$app/env/private';
+import { BLOB_STORE_ID, PLANS_OWNER_SECRET } from '$app/env/private';
 import { textResponse } from './api-response';
 import { authenticateOwner } from './owner-auth';
 import { extractPlanTitle, MAX_PLAN_BYTES, planPathname, PlanValidationError } from './plan';
@@ -21,7 +21,6 @@ const defaultDependencies: UploadDependencies = {
 			addRandomSuffix: false,
 			allowOverwrite: false,
 			contentType: 'text/html; charset=utf-8',
-			oidcToken: VERCEL_OIDC_TOKEN,
 			storeId: BLOB_STORE_ID
 		});
 	},

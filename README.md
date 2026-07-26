@@ -13,8 +13,9 @@ pnpm dev
 ```
 
 Set `PLANS_OWNER_SECRET` in `apps/web/.env`. Connecting a private Vercel Blob store
-and pulling the project environment provides `BLOB_STORE_ID` and
-`VERCEL_OIDC_TOKEN`.
+and pulling the project environment provides `BLOB_STORE_ID`. Vercel Blob obtains
+the short-lived OIDC token from the request context in production and from the
+pulled environment during local development.
 
 ## CLI
 

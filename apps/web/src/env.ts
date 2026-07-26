@@ -8,6 +8,5 @@ const requiredAtRuntime = building
 
 export const variables = defineEnvVars({
 	BLOB_STORE_ID: { schema: requiredAtRuntime },
-	PLANS_OWNER_SECRET: { schema: requiredAtRuntime },
-	VERCEL_OIDC_TOKEN: { schema: requiredAtRuntime }
+	PLANS_OWNER_SECRET: { schema: requiredAtRuntime }
 });
