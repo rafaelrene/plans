@@ -39,6 +39,6 @@ when they make the code simpler or better.
 - **Be explicit, never implicit.** Don't let things fail silently — check for
   the failure, handle it deliberately, and surface a clear, owned error.
   Failing loud is fine; failing vaguely is not.
-- Comments explain how something is used and *why*, not line-by-line what.
+- Comments explain how something is used and _why_, not line-by-line what.
 - Tests are focused, not regression/smoke slop.
 - Run format, lint, and tests after code changes.
