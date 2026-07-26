@@ -16,6 +16,7 @@ fear of breakage** — if everything breaks, that's fine.
 
 - SvelteKit + `adapter-vercel` (Hobby free tier), Svelte 5, Tailwind 4.
 - Vercel Blob for plan storage. No database (see ADR 0002).
+- pnpm monorepo with `apps/web` and `apps/cli` workspaces.
 
 ## Feature choices
 
@@ -25,10 +26,26 @@ when they make the code simpler or better.
 - **Remote functions** are the only browser↔server channel — never `load`.
   Queries for reads, commands/forms for writes.
 - **Plain `+server.ts` endpoints** are reserved for the external CLI-facing API
-  (`POST /api/plans`, `DELETE /api/plans/:id`), Bearer-authed.
+  (`POST /api/plans`), Bearer-authed.
 - **Async Svelte** is enabled. Consume remote queries by awaiting them directly
   in markup; wrap data-dependent components in `<svelte:boundary>`. Keep one
   top-level boundary in the layout as a catch-all.
+
+## CLI
+
+- The CLI is a separately distributable program with exactly two commands:
+  `login` and `upload`.
+- Implement and compile `apps/cli` with Bun; do not migrate `apps/web` from
+  pnpm.
+- Distribute the CLI as a standalone executable built with `bun build --compile`.
+- Build only for Apple Silicon macOS initially. Add other Bun targets when
+  someone needs them.
+- It targets one URL compiled into the program rather than user-configurable
+  servers or profiles. Use `http://localhost:5173` until production exists.
+- Persist login credentials under
+  `${XDG_STATE_HOME:-$HOME/.local/state}/plans`.
+- `upload <file.html>` uploads one Plan and prints its Share Link.
+- Plan deletion, if added, belongs to the web UI.
 
 ## Code style
 
