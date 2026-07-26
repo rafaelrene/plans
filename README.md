@@ -1,35 +1,31 @@
-# sv
+# Plans
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A minimal app for hosting and sharing self-contained, AI-generated HTML Plans.
 
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
+## Setup
 
 ```sh
-# create a new project
-npx sv create my-app
+mise install
+pnpm install
+cp apps/web/.env.example apps/web/.env
+pnpm dev
 ```
 
-## Developing
+Set `PLANS_OWNER_SECRET` and `BLOB_READ_WRITE_TOKEN` in `apps/web/.env`.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## CLI
+
+Build the Apple Silicon executable:
 
 ```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+pnpm --filter @plans/cli build
 ```
 
-## Building
-
-To create a production version of your app:
+Then authenticate once and upload a Plan:
 
 ```sh
-npm run build
+apps/cli/dist/plans login
+apps/cli/dist/plans upload ./plan.html
 ```
 
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+The CLI targets `http://localhost:5173` until the production deployment exists.

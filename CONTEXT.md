@@ -6,8 +6,9 @@ Share Link can view it without logging in.
 
 ## Language
 
-**Plan**: A single self-contained HTML file, AI-generated, describing a plan of
-work. No external assets — one file, nothing else.
+**Plan**: A single immutable, self-contained HTML file, AI-generated, describing
+a plan of work; no external assets — one file, nothing else. Uploading even
+identical content creates a distinct Plan.
 _Avoid_: Document, page, report
 
 **Owner**: The single authenticated human who uploads and manages plans and is
