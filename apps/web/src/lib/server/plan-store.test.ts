@@ -9,8 +9,7 @@ const missingId = 'c481b786-4590-41b8-bbf1-f4d42adfa570';
 function blob(id: string, title: string, uploadedAt: string) {
 	return {
 		pathname: planPathname(id, title),
-		uploadedAt: new Date(uploadedAt),
-		url: `https://example.public.blob.vercel-storage.com/${id}.html`
+		uploadedAt: new Date(uploadedAt)
 	};
 }
 
@@ -20,14 +19,15 @@ describe('loadPlanView', () => {
 			blobs: [blob(currentId, 'Current Plan', '2026-07-26T10:00:00Z')],
 			hasMore: false
 		}));
-		const fetchBlob = vi.fn(async () => new Response('<title>Current Plan</title>'));
+		const readBlob = vi.fn(async () => new Response('<title>Current Plan</title>'));
 
-		const view = await loadPlanView(currentId, false, { listBlobs, fetchBlob });
+		const view = await loadPlanView(currentId, false, { listBlobs, readBlob });
 
 		expect(listBlobs).toHaveBeenCalledWith({
 			prefix: `plans/${currentId}/`,
 			limit: 2
 		});
+		expect(readBlob).toHaveBeenCalledWith(planPathname(currentId, 'Current Plan'));
 		expect(view).toEqual({
 			owner: false,
 			plan: {
@@ -53,9 +53,9 @@ describe('loadPlanView', () => {
 						hasMore: true
 					}
 		);
-		const fetchBlob = vi.fn(async () => new Response('<title>Current Plan</title>'));
+		const readBlob = vi.fn(async () => new Response('<title>Current Plan</title>'));
 
-		const view = await loadPlanView(currentId, true, { listBlobs, fetchBlob });
+		const view = await loadPlanView(currentId, true, { listBlobs, readBlob });
 
 		expect(view.plans?.map((plan) => plan.id)).toEqual([currentId, otherId]);
 		expect(view.plan?.html).toBe('<title>Current Plan</title>');
@@ -66,12 +66,12 @@ describe('loadPlanView', () => {
 			blobs: [blob(otherId, 'Other Plan', '2026-07-20T10:00:00Z')],
 			hasMore: false
 		}));
-		const fetchBlob = vi.fn();
+		const readBlob = vi.fn();
 
-		const view = await loadPlanView(missingId, true, { listBlobs, fetchBlob });
+		const view = await loadPlanView(missingId, true, { listBlobs, readBlob });
 
 		expect(view.plan).toBeNull();
 		expect(view.plans?.map((plan) => plan.id)).toEqual([otherId]);
-		expect(fetchBlob).not.toHaveBeenCalled();
+		expect(readBlob).not.toHaveBeenCalled();
 	});
 });

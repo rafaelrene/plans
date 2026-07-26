@@ -1,11 +1,11 @@
-import { list } from '@vercel/blob';
+import { get, list } from '@vercel/blob';
+import { BLOB_STORE_ID, VERCEL_OIDC_TOKEN } from '$app/env/private';
 import type { PlanSummary } from '#lib/plan';
 import { isPlanId, MAX_PLAN_BYTES, planFromPathname } from './plan';
 
 type BlobPlan = {
 	pathname: string;
 	uploadedAt: Date;
-	url: string;
 };
 
 type BlobListResult = {
@@ -20,11 +20,11 @@ type PlanStoreDependencies = {
 		limit?: number;
 		cursor?: string;
 	}) => Promise<BlobListResult>;
-	fetchBlob: (url: string) => Promise<Response>;
+	readBlob: (pathname: string) => Promise<Response | null>;
 };
 
 type StoredPlan = PlanSummary & {
-	url: string;
+	pathname: string;
 };
 
 type LoadedPlan = PlanSummary & { html: string };
@@ -42,8 +42,28 @@ export type PlanView =
 	  };
 
 const defaultDependencies: PlanStoreDependencies = {
-	listBlobs: (options) => list(options),
-	fetchBlob: (url) => fetch(url)
+	listBlobs: (options) =>
+		list({
+			...options,
+			oidcToken: VERCEL_OIDC_TOKEN,
+			storeId: BLOB_STORE_ID
+		}),
+	readBlob: async (pathname) => {
+		const result = await get(pathname, {
+			access: 'private',
+			oidcToken: VERCEL_OIDC_TOKEN,
+			storeId: BLOB_STORE_ID
+		});
+		if (!result) {
+			return null;
+		}
+		if (result.statusCode !== 200) {
+			throw new Error(`Blob storage returned unexpected status ${result.statusCode}.`);
+		}
+		return new Response(result.stream, {
+			headers: { 'content-length': String(result.blob.size) }
+		});
+	}
 };
 
 export async function loadPlanView(
@@ -136,7 +156,7 @@ function storedPlanFromBlob(blob: BlobPlan): StoredPlan {
 	return {
 		...plan,
 		uploadedAt: blob.uploadedAt.toISOString(),
-		url: blob.url
+		pathname: blob.pathname
 	};
 }
 
@@ -144,8 +164,13 @@ async function loadPlan(
 	plan: StoredPlan,
 	dependencies: PlanStoreDependencies
 ): Promise<PlanSummary & { html: string }> {
-	const response = await dependencies.fetchBlob(plan.url);
-	if (!response.ok) {
+	let response: Response | null;
+	try {
+		response = await dependencies.readBlob(plan.pathname);
+	} catch (error) {
+		throw new Error(`Could not read Plan "${plan.id}" from Blob storage.`, { cause: error });
+	}
+	if (!response) {
 		throw new Error(`Could not read Plan "${plan.id}" from Blob storage.`);
 	}
 

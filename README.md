@@ -8,10 +8,13 @@ A minimal app for hosting and sharing self-contained, AI-generated HTML Plans.
 mise install
 pnpm install
 cp apps/web/.env.example apps/web/.env
+vercel env pull apps/web/.env.local
 pnpm dev
 ```
 
-Set `PLANS_OWNER_SECRET` and `BLOB_READ_WRITE_TOKEN` in `apps/web/.env`.
+Set `PLANS_OWNER_SECRET` in `apps/web/.env`. Connecting a private Vercel Blob store
+and pulling the project environment provides `BLOB_STORE_ID` and
+`VERCEL_OIDC_TOKEN`.
 
 ## CLI
 

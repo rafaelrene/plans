@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { put } from '@vercel/blob';
+import { BLOB_STORE_ID, PLANS_OWNER_SECRET, VERCEL_OIDC_TOKEN } from '$app/env/private';
 import { textResponse } from './api-response';
 import { authenticateOwner } from './owner-auth';
 import { extractPlanTitle, MAX_PLAN_BYTES, planPathname, PlanValidationError } from './plan';
@@ -12,14 +13,16 @@ type UploadDependencies = {
 };
 
 const defaultDependencies: UploadDependencies = {
-	ownerSecret: () => process.env.PLANS_OWNER_SECRET,
+	ownerSecret: () => PLANS_OWNER_SECRET,
 	createId: randomUUID,
 	storePlan: async (pathname, body) => {
 		await put(pathname, body, {
-			access: 'public',
+			access: 'private',
 			addRandomSuffix: false,
 			allowOverwrite: false,
-			contentType: 'text/html; charset=utf-8'
+			contentType: 'text/html; charset=utf-8',
+			oidcToken: VERCEL_OIDC_TOKEN,
+			storeId: BLOB_STORE_ID
 		});
 	},
 	reportError: (error) => console.error('Failed to store Plan.', error)
