@@ -3,6 +3,7 @@ import { parse, type DefaultTreeAdapterMap } from 'parse5';
 
 export const MAX_PLAN_BYTES = 4 * 1024 * 1024;
 const MAX_BLOB_PATHNAME_LENGTH = 950;
+const PLAN_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 type HtmlNode = DefaultTreeAdapterMap['node'];
 type HtmlElement = DefaultTreeAdapterMap['element'];
@@ -36,11 +37,18 @@ export function planPathname(id: string, title: string): string {
 	return pathname;
 }
 
+export function isPlanId(value: string): boolean {
+	return PLAN_ID_PATTERN.test(value);
+}
+
 export function planFromPathname(pathname: string): { id: string; title: string } | null {
-	const match = pathname.match(
-		/^plans\/([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})\/([A-Za-z0-9_-]+)\.html$/i
-	);
+	const match = pathname.match(/^plans\/([^/]+)\/([A-Za-z0-9_-]+)\.html$/);
 	if (!match) {
+		return null;
+	}
+
+	const id = match[1]!;
+	if (!isPlanId(id)) {
 		return null;
 	}
 
@@ -50,7 +58,7 @@ export function planFromPathname(pathname: string): { id: string; title: string 
 		return null;
 	}
 
-	return { id: match[1]!, title };
+	return { id, title };
 }
 
 function findTitle(node: HtmlNode): HtmlElement | null {

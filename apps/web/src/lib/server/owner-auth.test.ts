@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { authenticateOwner } from './owner-auth';
+import { authenticateOwner, isOwnerSession } from './owner-auth';
 
 describe('authenticateOwner', () => {
 	test('accepts the configured Bearer secret', () => {
@@ -26,5 +26,14 @@ describe('authenticateOwner', () => {
 
 		expect(response?.status).toBe(500);
 		expect(await response?.text()).toBe('Server authentication is not configured.');
+	});
+});
+
+describe('isOwnerSession', () => {
+	test('accepts only a cookie matching the configured secret', () => {
+		expect(isOwnerSession('owner-secret', 'owner-secret')).toBe(true);
+		expect(isOwnerSession('wrong', 'owner-secret')).toBe(false);
+		expect(isOwnerSession(undefined, 'owner-secret')).toBe(false);
+		expect(isOwnerSession('owner-secret', undefined)).toBe(false);
 	});
 });
